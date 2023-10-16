@@ -15,7 +15,6 @@ public class Faculty {
     private String name;
     private String color;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "faculty")
     private List<Student> students;
 

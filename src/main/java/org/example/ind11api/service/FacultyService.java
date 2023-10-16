@@ -1,44 +1,68 @@
 package org.example.ind11api.service;
 
-import org.example.ind11api.model.Faculty;
+import org.example.ind11api.dto.FacultyDTO;
+import org.example.ind11api.dto.StudentDTO;
+import org.example.ind11api.mapper.FacultyMapper;
+import org.example.ind11api.mapper.StudentMapper;
 import org.example.ind11api.repository.FacultyRepository;
+import org.example.ind11api.repository.StudentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
 
-    private final FacultyRepository repository;
+    private final FacultyRepository facultyRepository;
+    private final StudentRepository studentRepository;
+    private final FacultyMapper facultyMapper;
+    private final StudentMapper studentMapper;
 
-    public FacultyService(FacultyRepository repository) {
-        this.repository = repository;
+    public FacultyService(FacultyRepository facultyRepository,
+                          StudentRepository studentRepository,
+                          FacultyMapper facultyMapper,
+                          StudentMapper studentMapper) {
+        this.facultyRepository = facultyRepository;
+        this.studentRepository = studentRepository;
+        this.facultyMapper = facultyMapper;
+        this.studentMapper = studentMapper;
     }
 
-    public Faculty add(Faculty faculty) {
-        return repository.save(faculty);
+    public FacultyDTO add(FacultyDTO faculty) {
+        return facultyMapper.toDto(facultyRepository.save(facultyMapper.toEntity(faculty)));
     }
 
-    public Faculty get(long id) {
-        return repository.findById(id).orElse(null);
+    public FacultyDTO get(long id) {
+        return facultyRepository.findById(id).map(facultyMapper::toDto).orElse(null);
     }
 
-    public Faculty remove(long id) {
-        var entity = repository.findById(id).orElse(null);
+    public FacultyDTO remove(long id) {
+        var entity = facultyRepository.findById(id).orElse(null);
         if (entity != null) {
-            repository.delete(entity);
-            return entity;
+            facultyRepository.delete(entity);
+            return facultyMapper.toDto(entity);
         }
         return null;
     }
 
-    public Faculty update(Faculty faculty) {
-        return repository.findById(faculty.getId())
-                .map(entity -> repository.save(faculty))
+    public FacultyDTO update(FacultyDTO facultyDTO) {
+        return facultyRepository.findById(facultyDTO.getId())
+                .map(entity -> facultyRepository.save(facultyMapper.toEntity(facultyDTO)))
+                .map(facultyMapper::toDto)
                 .orElse(null);
     }
 
-    public Collection<Faculty> filterByNameOrColor(String name, String color) {
-        return repository.findAllByNameOrColorIgnoreCase(name, color);
+    public Collection<FacultyDTO> filterByNameOrColor(String name, String color) {
+        return facultyRepository.findAllByNameOrColorIgnoreCase(name, color)
+                .stream()
+                .map(facultyMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public Collection<StudentDTO> getStudents(long facultyId) {
+        return studentRepository.findAllByFaculty_Id(facultyId).stream()
+                .map(studentMapper::toDto)
+                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,7 @@
 package org.example.ind11api.controller;
 
-import org.example.ind11api.model.Faculty;
-import org.example.ind11api.model.Student;
+import org.example.ind11api.dto.FacultyDTO;
+import org.example.ind11api.dto.StudentDTO;
 import org.example.ind11api.service.FacultyService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,32 +18,32 @@ public class FacultyController {
     }
 
     @PostMapping
-    public Faculty add(@RequestBody Faculty faculty) {
+    public FacultyDTO add(@RequestBody FacultyDTO faculty) {
         return service.add(faculty);
     }
 
     @GetMapping("/{id}")
-    public Faculty get(@PathVariable long id) {
+    public FacultyDTO get(@PathVariable long id) {
         return service.get(id);
     }
 
     @PutMapping
-    public Faculty update(@RequestBody Faculty faculty) {
+    public FacultyDTO update(@RequestBody FacultyDTO faculty) {
         return service.update(faculty);
     }
 
     @DeleteMapping("/{id}")
-    public Faculty remove(@PathVariable long id) {
+    public FacultyDTO remove(@PathVariable long id) {
         return service.remove(id);
     }
 
     @GetMapping("/{facultyId}/students")
-    public Collection<Student> findByFaculty(@PathVariable long facultyId) {
-        return service.get(facultyId).getStudents();
+    public Collection<StudentDTO> findByFaculty(@PathVariable long facultyId) {
+        return service.getStudents(facultyId);
     }
 
     @GetMapping("/byNameOrColor")
-    public Collection<Faculty> byNameOrColor(
+    public Collection<FacultyDTO> byNameOrColor(
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String color
     ) {
