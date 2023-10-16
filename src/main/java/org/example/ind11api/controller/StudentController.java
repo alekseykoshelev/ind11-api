@@ -1,7 +1,8 @@
 package org.example.ind11api.controller;
 
-import jakarta.annotation.PostConstruct;
+import org.example.ind11api.model.Faculty;
 import org.example.ind11api.model.Student;
+import org.example.ind11api.service.FacultyService;
 import org.example.ind11api.service.StudentService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,11 @@ import java.util.Collection;
 public class StudentController {
 
     private final StudentService service;
+    private final FacultyService facultyService;
 
-    public StudentController(StudentService service) {
+    public StudentController(StudentService service, FacultyService facultyService) {
         this.service = service;
+        this.facultyService = facultyService;
     }
 
     @PostMapping
@@ -33,13 +36,22 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}")
-    public boolean remove(@PathVariable long id) {
+    public Student remove(@PathVariable long id) {
         return service.remove(id);
     }
 
-    // localhost:8080/student/byAge?age=15
+    @GetMapping("/{studentId}/faculty")
+    public Faculty facultyByStudent(@PathVariable long studentId) {
+        return service.get(studentId).getFaculty();
+    }
+
     @GetMapping("/byAge")
     public Collection<Student> byAge(@RequestParam int age) {
         return service.filterByAge(age);
+    }
+
+    @GetMapping("/byAgeBetween")
+    public Collection<Student> byAgeBetween(@RequestParam int min, @RequestParam int max) {
+        return service.filterByAgeBetween(min, max);
     }
 }

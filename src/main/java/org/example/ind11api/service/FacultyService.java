@@ -1,46 +1,44 @@
 package org.example.ind11api.service;
 
 import org.example.ind11api.model.Faculty;
+import org.example.ind11api.repository.FacultyRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
 
-    private final Map<Long, Faculty> storage = new HashMap<>();
-    private long counter = 0;
+    private final FacultyRepository repository;
+
+    public FacultyService(FacultyRepository repository) {
+        this.repository = repository;
+    }
 
     public Faculty add(Faculty faculty) {
-        faculty.setId(counter);
-        storage.put(counter, faculty);
-        counter++;
-        return faculty;
+        return repository.save(faculty);
     }
 
     public Faculty get(long id) {
-        return storage.get(id);
+        return repository.findById(id).orElse(null);
     }
 
-    public boolean remove(long id) {
-        return storage.remove(id) != null;
-    }
-
-    public Faculty update(Faculty faculty) {
-        if (storage.containsKey(faculty.getId())) {
-            storage.put(faculty.getId(), faculty);
-            return faculty;
+    public Faculty remove(long id) {
+        var entity = repository.findById(id).orElse(null);
+        if (entity != null) {
+            repository.delete(entity);
+            return entity;
         }
         return null;
     }
 
-    public Collection<Faculty> filterByColor(String color) {
-        return storage.values()
-                .stream()
-                .filter(f -> f.getColor().equalsIgnoreCase(color))
-                .collect(Collectors.toList());
+    public Faculty update(Faculty faculty) {
+        return repository.findById(faculty.getId())
+                .map(entity -> repository.save(faculty))
+                .orElse(null);
+    }
+
+    public Collection<Faculty> filterByNameOrColor(String name, String color) {
+        return repository.findAllByNameOrColorIgnoreCase(name, color);
     }
 }
