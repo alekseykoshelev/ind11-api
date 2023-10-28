@@ -13,11 +13,9 @@ import java.util.Collection;
 public class StudentController {
 
     private final StudentService service;
-    private final FacultyService facultyService;
 
-    public StudentController(StudentService service, FacultyService facultyService) {
+    public StudentController(StudentService service) {
         this.service = service;
-        this.facultyService = facultyService;
     }
 
     @PostMapping
