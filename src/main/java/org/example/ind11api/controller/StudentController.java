@@ -52,4 +52,19 @@ public class StudentController {
     public Collection<Student> byAgeBetween(@RequestParam int min, @RequestParam int max) {
         return service.filterByAgeBetween(min, max);
     }
+
+    @GetMapping("/count")
+    public long getCountOfStudents() {
+        return service.studentsCount();
+    }
+
+    @GetMapping("/avgAge")
+    public double getAverageAge() {
+        return service.averageAge();
+    }
+
+    @GetMapping("/lastfive")
+    public Collection<Student> getLastFiveStudents() {
+        return service.lastFiveStudents();
+    }
 }

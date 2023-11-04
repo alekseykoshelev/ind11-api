@@ -7,12 +7,14 @@ import org.example.ind11api.model.Student;
 import org.example.ind11api.repository.AvatarRepository;
 import org.example.ind11api.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.zip.GZIPInputStream;
 
 @Service
@@ -51,8 +53,12 @@ public class AvatarService {
     }
 
     private String saveFile(MultipartFile file, Student student) {
-        var dotIndex = file.getOriginalFilename().lastIndexOf('.');
-        var ext = file.getOriginalFilename().substring(dotIndex + 1);
+        var originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            originalFilename = "file.jpg";
+        }
+        var dotIndex = originalFilename.lastIndexOf('.');
+        var ext = originalFilename.substring(dotIndex + 1);
         var path = avatarsDir + "/" + student.getId() + "_" + student.getName() + "." + ext;
         try (var in = file.getInputStream();
              var out = new FileOutputStream(path)) {
@@ -66,6 +72,10 @@ public class AvatarService {
     @Transactional
     public Avatar find(long studentId) {
         return avatarRepository.findByStudentId(studentId).orElse(null);
+    }
+
+    public Collection<Avatar> find(int page, int pageSize) {
+        return avatarRepository.findAll(PageRequest.of(page, pageSize)).getContent();
     }
 
     /*  FileOutputStream out = null;
