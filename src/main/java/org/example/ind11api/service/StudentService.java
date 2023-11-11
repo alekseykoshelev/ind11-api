@@ -2,12 +2,15 @@ package org.example.ind11api.service;
 
 import org.example.ind11api.model.Student;
 import org.example.ind11api.repository.StudentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
 @Service
 public class StudentService {
+    private final static Logger logger = LoggerFactory.getLogger(StudentService.class);
 
     private final StudentRepository studentRepository;
 
@@ -16,10 +19,12 @@ public class StudentService {
     }
 
     public Student add(Student student) {
+        logger.info("Add method was invoked");
         return studentRepository.save(student);
     }
 
     public Student get(long id) {
+        logger.info("Add method was invoked with argument {}", id);
         return studentRepository.findById(id).orElse(null);
     }
 
@@ -46,10 +51,20 @@ public class StudentService {
     }
 
     public long studentsCount() {
-        return studentRepository.getStudentCount();
+        try {
+            // для примера обработки исключения
+            if (true) {
+                throw new RuntimeException("DB Error!");
+            }
+            return studentRepository.getStudentCount();
+        } catch (RuntimeException e) {
+            logger.error("Cannot get count of students!", e);
+        }
+        return -1;
     }
 
     public double averageAge() {
+        logger.info("averageAge was invoked");
         return studentRepository.getAverageAge();
     }
 
