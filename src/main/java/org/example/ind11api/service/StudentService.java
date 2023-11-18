@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -70,5 +71,63 @@ public class StudentService {
 
     public Collection<Student> lastFiveStudents() {
         return studentRepository.getLastFiveStudents();
+    }
+
+    public Collection<String> getStudentsNameStartA() {
+        return studentRepository.findAll().stream()
+                .map(Student::getName)
+                .map(String::toUpperCase)
+                .filter(name -> name.startsWith("A"))
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    public double streamAverageAge() {
+        return studentRepository.findAll()
+                .stream()
+                .map(Student::getAge)
+                .mapToInt(o -> o)
+                .average()
+                .orElse(0d);
+    }
+
+    public void printNonSync() {
+        var students = studentRepository.findAll();
+        System.out.println(students.get(0));
+        System.out.println(students.get(1));
+
+        Thread t1 = new Thread(() -> {
+            System.out.println(students.get(2));
+            System.out.println(students.get(3));
+        });
+        Thread t2 = new Thread(() -> {
+            System.out.println(students.get(4));
+            System.out.println(students.get(5));
+        });
+        t2.start();
+        t1.start();
+        System.out.println("-----------------");
+    }
+
+    public void printSync() {
+        var students = studentRepository.findAll();
+        printSynchronized(students.get(0));
+        printSynchronized(students.get(1));
+
+        Thread t1 = new Thread(() -> {
+            printSynchronized(students.get(2));
+            printSynchronized(students.get(3));
+        });
+        Thread t2 = new Thread(() -> {
+            printSynchronized(students.get(4));
+            printSynchronized(students.get(5));
+        });
+        t2.start();
+        t1.start();
+        System.out.println("-----------------");
+    }
+
+    private synchronized void printSynchronized(Object o) {
+        System.out.println(o.toString());
     }
 }
